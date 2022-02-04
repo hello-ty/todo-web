@@ -1,85 +1,60 @@
 import clsx from "clsx";
 import classes from "/src/styles/Home.module.css";
 import { PlusCircleIcon } from "@heroicons/react/outline";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { HyperLink } from "/src/components/HyperLink/";
 
 export function Main() {
-  const [todaytext, setTodayText] = useState("");
-  const [tomorrowtext, setTomorrowText] = useState("");
-  const [nexttext, setNextText] = useState("");
-  const [todaycount, setTodayCount] = useState([]);
-  const [tomorrowcount, setTomorrowCount] = useState([]);
-  const [nextcount, setNextCount] = useState([]);
+  const [inputToday, setInputToday] = useState("");
+  const [inputTomorrow, setInputTomorrow] = useState("");
+  const [inputNext, setInputNext] = useState("");
+  const [displayToday, setDisplayToday] = useState([]);
+  const [displayTomorrow, setDisplayTomorrow] = useState([]);
+  const [displayNext, setDisplayNext] = useState([]);
 
-  const [today, setToday] = useState([]);
-  const [tomorrow, setTomorrow] = useState([]);
-  const [next, setNext] = useState([]);
-
-  const handleTodayText = useCallback(
+  const handleinputToday = useCallback(
     (e) => {
-      setTodayText(e.target.value);
+      setInputToday(e.target.value);
     },
-    [todaytext]
+    [inputToday]
   );
 
-  const handleTomorrowText = useCallback(
+  const handleinputTomorrow = useCallback(
     (e) => {
-      setTomorrowText(e.target.value);
+      setInputTomorrow(e.target.value);
     },
-    [tomorrowtext]
+    [inputTomorrow]
   );
 
-  const handleNextText = useCallback(
+  const handleinputNext = useCallback(
     (e) => {
-      setNextText(e.target.value);
+      setInputNext(e.target.value);
     },
-    [nexttext]
+    [inputNext]
   );
 
   const handleAddToday = useCallback(
     (e) => {
-      setTodayCount((prevCount) => {
-        const newArray = [...prevCount, todaytext];
-        return newArray;
-      });
-      setToday((prevCount) => {
-        const newArray2 = [...prevCount, todaytext];
-        return newArray2;
-      });
-      setTodayText("");
+      setDisplayToday((prevCount) => [...prevCount, inputToday]);
+      setInputToday("");
     },
-    [todaycount, today, todaytext]
+    [displayToday, inputToday]
   );
 
   const handleAddTomorrow = useCallback(
     (e) => {
-      setTomorrowCount((prevCount) => {
-        const newArray = [...prevCount, tomorrowtext];
-        return newArray;
-      });
-      setTomorrow((prevCount) => {
-        const newArray2 = [...prevCount, tomorrowtext];
-        return newArray2;
-      });
-      setTomorrowText("");
+      setDisplayTomorrow((prevCount) => [...prevCount, inputTomorrow]);
+      setInputTomorrow("");
     },
-    [tomorrowcount, tomorrow, tomorrowtext]
+    [displayTomorrow, inputTomorrow]
   );
 
   const handleAddNext = useCallback(
     (e) => {
-      setNextCount((prevCount) => {
-        const newArray = [...prevCount, nexttext];
-        return newArray;
-      });
-      setNext((prevCount) => {
-        const newArray3 = [...prevCount, nexttext];
-        return newArray3;
-      });
-      setNextText("");
+      setDisplayNext((prevCount) => [...prevCount, inputNext]);
+      setInputNext("");
     },
-    [nextcount, next, nexttext]
+    [displayNext, inputNext]
   );
 
   const ITEMS = [
@@ -87,34 +62,28 @@ export function Main() {
       id: 1,
       title: "今日する",
       classes: classes.today,
-      input: classes.input,
-      text: todaytext,
-      func: handleTodayText,
-      funccount: handleAddToday,
-      count: todaycount,
-      eee: today,
+      inputStyle: classes.input,
+      inputText: inputToday,
+      inputOnChange: handleinputToday,
+      buttonOnClick: handleAddToday,
     },
     {
       id: 2,
       title: "明日する",
       classes: classes.tomorrow,
-      input: classes.input2,
-      text: tomorrowtext,
-      func: handleTomorrowText,
-      funccount: handleAddTomorrow,
-      count: tomorrowcount,
-      eee: tomorrow,
+      inputStyle: classes.input2,
+      inputText: inputTomorrow,
+      inputOnChange: handleinputTomorrow,
+      buttonOnClick: handleAddTomorrow,
     },
     {
       id: 3,
       title: "今度する",
       classes: classes.next,
-      input: classes.input3,
-      text: nexttext,
-      func: handleNextText,
-      funccount: handleAddNext,
-      count: nextcount,
-      eee: next,
+      inputStyle: classes.input3,
+      inputText: inputNext,
+      inputOnChange: handleinputNext,
+      buttonOnClick: handleAddNext,
     },
   ];
 
@@ -128,7 +97,7 @@ export function Main() {
                 <h1 className={clsx("mb-1", classes.font, item.classes)}>
                   {item.title}
                 </h1>
-                <button onClick={item.funccount}>
+                <button onClick={item.buttonOnClick}>
                   <PlusCircleIcon
                     className={clsx("inline pb-1 w-6 text-gray-500")}
                   />
@@ -137,24 +106,24 @@ export function Main() {
                   className={clsx(
                     "appearance-none border-2 border-white rounded-full py-2 px-4 ml-1 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500",
                     item.classes,
-                    item.input
+                    item.inputStyle
                   )}
                   id="inline-full-name"
                   type="text"
                   placeholder="タスクを追加する"
-                  value={item.text}
-                  onChange={item.func}
+                  value={item.inputText}
+                  onChange={item.inputOnChange}
                 />
                 {item.id === 1
-                  ? item.count.map((item, i) => {
-                      return <p key={item}>{today[i]}</p>;
+                  ? displayToday.map((item, i) => {
+                      return <p key={i}>{item}</p>;
                     })
                   : item.id === 2
-                  ? item.count.map((item, i) => {
-                      return <p key={item}>{tomorrow[i]}</p>;
+                  ? displayTomorrow.map((item, i) => {
+                      return <p key={i}>{item}</p>;
                     })
-                  : item.count.map((item, i) => {
-                      return <p key={item}>{next[i]}</p>;
+                  : displayNext.map((item, i) => {
+                      return <p key={i}>{item}</p>;
                     })}
               </div>
             );
