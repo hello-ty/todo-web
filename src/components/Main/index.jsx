@@ -1,61 +1,21 @@
 import clsx from "clsx";
 import classes from "/src/styles/Home.module.css";
 import { PlusCircleIcon } from "@heroicons/react/outline";
-import { useCallback, useState } from "react";
-import { HyperLink } from "/src/components/HyperLink/";
+import { useControllToday } from "src/hooks/useControllToday";
+import { useControllNext } from "src/hooks/useControllNext";
+import { useControllTomorrow } from "src/hooks/useControllTomorrow";
 
 export function Main() {
-  const [inputToday, setInputToday] = useState("");
-  const [inputTomorrow, setInputTomorrow] = useState("");
-  const [inputNext, setInputNext] = useState("");
-  const [displayToday, setDisplayToday] = useState([]);
-  const [displayTomorrow, setDisplayTomorrow] = useState([]);
-  const [displayNext, setDisplayNext] = useState([]);
-
-  const handleinputToday = useCallback(
-    (e) => {
-      setInputToday(e.target.value);
-    },
-    [inputToday]
-  );
-
-  const handleinputTomorrow = useCallback(
-    (e) => {
-      setInputTomorrow(e.target.value);
-    },
-    [inputTomorrow]
-  );
-
-  const handleinputNext = useCallback(
-    (e) => {
-      setInputNext(e.target.value);
-    },
-    [inputNext]
-  );
-
-  const handleAddToday = useCallback(
-    (e) => {
-      setDisplayToday((prevCount) => [...prevCount, inputToday]);
-      setInputToday("");
-    },
-    [displayToday, inputToday]
-  );
-
-  const handleAddTomorrow = useCallback(
-    (e) => {
-      setDisplayTomorrow((prevCount) => [...prevCount, inputTomorrow]);
-      setInputTomorrow("");
-    },
-    [displayTomorrow, inputTomorrow]
-  );
-
-  const handleAddNext = useCallback(
-    (e) => {
-      setDisplayNext((prevCount) => [...prevCount, inputNext]);
-      setInputNext("");
-    },
-    [displayNext, inputNext]
-  );
+  const { inputToday, displayToday, handleinputToday, handleAddToday } =
+    useControllToday();
+  const {
+    inputTomorrow,
+    displayTomorrow,
+    handleinputTomorrow,
+    handleAddTomorrow,
+  } = useControllTomorrow();
+  const { inputNext, displayNext, handleinputNext, handleAddNext } =
+    useControllNext();
 
   const ITEMS = [
     {
