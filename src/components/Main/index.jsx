@@ -1,63 +1,90 @@
 import clsx from "clsx";
 import classes from "/src/styles/Home.module.css";
 import { PlusCircleIcon } from "@heroicons/react/outline";
-import { useControllToday } from "src/hooks/useControllToday";
-import { useControllNext } from "src/hooks/useControllNext";
-import { useControllTomorrow } from "src/hooks/useControllTomorrow";
+import { useReducer } from "react";
+
+const initialState = {
+  titleId: [0, 1, 2], // 0:今日する 1:明日する 2:今度する
+  input: ["", "", ""], //input[0]:今日する input[1]:明日する input[2]:今度する
+  outputToday: [""],
+  outputTomorrow: [""],
+  outputNext: [""],
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    // 入力
+    case "input":
+      switch (action.titleId) {
+        case 0: // 今日する
+          return {
+            ...state,
+            input: [action.input, state.input[1], state.input[2]],
+          };
+        case 1: // 明日する
+          return {
+            ...state,
+            input: [state.input[0], action.input, state.input[2]],
+          };
+        case 2: // 今度する
+          return {
+            ...state,
+            input: [state.input[0], state.input[1], action.input],
+          };
+      }
+    // 出力
+    case "output":
+      switch (action.titleId) {
+        case 0: // 今日する
+          return {
+            ...state,
+            outputToday: [...state.outputToday, action.input],
+            input: ["", state.input[1], state.input[2]], // 出力したらinputを空にする
+          };
+        case 1: // 明日する
+          return {
+            ...state,
+            outputTomorrow: [...state.outputTomorrow, action.input],
+            input: [state.input[0], "", state.input[2]],
+          };
+        case 2: // 今度する
+          return {
+            ...state,
+            outputNext: [...state.outputNext, action.input],
+            input: [state.input[0], state.input[1], ""],
+          };
+      }
+    default:
+      throw new Error("no such action type");
+  }
+};
 
 export function Main() {
-  const { inputToday, displayToday, handleinputToday, handleAddToday } =
-    useControllToday();
-  const {
-    inputTomorrow,
-    displayTomorrow,
-    handleinputTomorrow,
-    handleAddTomorrow,
-  } = useControllTomorrow();
-  const { inputNext, displayNext, handleinputNext, handleAddNext } =
-    useControllNext();
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-  const ITEMS = [
-    {
-      id: 1,
-      title: "今日する",
-      classes: classes.today,
-      inputStyle: classes.input,
-      inputText: inputToday,
-      inputOnChange: handleinputToday,
-      buttonOnClick: handleAddToday,
-    },
-    {
-      id: 2,
-      title: "明日する",
-      classes: classes.tomorrow,
-      inputStyle: classes.input2,
-      inputText: inputTomorrow,
-      inputOnChange: handleinputTomorrow,
-      buttonOnClick: handleAddTomorrow,
-    },
-    {
-      id: 3,
-      title: "今度する",
-      classes: classes.next,
-      inputStyle: classes.input3,
-      inputText: inputNext,
-      inputOnChange: handleinputNext,
-      buttonOnClick: handleAddNext,
-    },
-  ];
+  const fontColor = [classes.today, classes.tomorrow, classes.next];
+  const inputStyle = [classes.input, classes.input2, classes.input3];
+  const title = ["今日する", "明日する", "今度する"];
 
   return (
     <>
       <main className={clsx("mt-10 w-screen", classes.main)}>
         <div className={clsx("pl-24 w-96 mx-auto")}>
-          {ITEMS.map((item) => {
+          {state.titleId.map((item) => {
             return (
-              <div key={item.id} className={clsx("mb-10")}>
-                <h1 className={clsx("mb-1", classes.font, item.classes)}>
-                  {item.title}
+              <div key={item} className={clsx("mb-10")}>
+                <h1 className={clsx("mb-1", classes.font, fontColor[item])}>
+                  {title[item]}
                 </h1>
-                <button onClick={item.buttonOnClick}>
+                <button
+                  onClick={() =>
+                    dispatch({
+                      type: "output",
+                      titleId: item,
+                      input: state.input[item],
+                    })
+                  }
+                >
                   <PlusCircleIcon
                     className={clsx("inline pb-1 w-6 text-gray-500")}
                   />
@@ -65,24 +92,29 @@ export function Main() {
                 <input
                   className={clsx(
                     "appearance-none border-2 border-white rounded-full py-2 px-4 ml-1 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500",
-                    item.classes,
-                    item.inputStyle
+                    fontColor[item],
+                    inputStyle[item]
                   )}
-                  id="inline-full-name"
                   type="text"
                   placeholder="タスクを追加する"
-                  value={item.inputText}
-                  onChange={item.inputOnChange}
+                  value={state.input[item]}
+                  onChange={(e) =>
+                    dispatch({
+                      type: "input",
+                      titleId: item,
+                      input: e.target.value,
+                    })
+                  }
                 />
-                {item.id === 1
-                  ? displayToday.map((item, i) => {
+                {item === 0
+                  ? state.outputToday.map((item, i) => {
                       return <p key={i}>{item}</p>;
                     })
-                  : item.id === 2
-                  ? displayTomorrow.map((item, i) => {
+                  : item === 1
+                  ? state.outputTomorrow.map((item, i) => {
                       return <p key={i}>{item}</p>;
                     })
-                  : displayNext.map((item, i) => {
+                  : state.outputNext.map((item, i) => {
                       return <p key={i}>{item}</p>;
                     })}
               </div>
